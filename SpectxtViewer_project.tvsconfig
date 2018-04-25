@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<TgConfig Version="3" SubLevelDisabled="False">
+  <Option Name="namespaceFolder.SpectxtViewer" Type="System.String" Value="SpectxtViewer" Category="General" IsBrowsable="False" />
+  <Option Name="namespaceFolder.XLSFile" Type="System.String" Value="XLSFile" Category="General" IsBrowsable="False" />
+  <Option Name="namespaceFolder.main" Type="System.String" Value="main" Category="General" IsBrowsable="False" />
+</TgConfig>

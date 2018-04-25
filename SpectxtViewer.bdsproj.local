@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2007/06/06 12:01:59.218.pas,C:\Documents and Settings\pgdennis\My Documents\Borland Studio Projects\Unit1.pas=C:\Documents and Settings\pgdennis\桌面\SpecTxtViewer\main.pas</Transaction>
+    <Transaction>2007/06/06 12:01:59.218.dfm,C:\Documents and Settings\pgdennis\My Documents\Borland Studio Projects\Unit1.dfm=C:\Documents and Settings\pgdennis\桌面\SpecTxtViewer\main.dfm</Transaction>
+    <Transaction>2007/06/06 12:02:09.687.bdsproj,C:\Documents and Settings\pgdennis\My Documents\Borland Studio Projects\Project1.bdsproj=C:\Documents and Settings\pgdennis\桌面\SpecTxtViewer\SpectxtViewer.bdsproj</Transaction>
+    <Transaction>2007/06/06 16:49:58.453.pas,C:\Documents and Settings\pgdennis\桌面\SpecTxtViewer\Unit2.pas=C:\Documents and Settings\pgdennis\桌面\SpecTxtViewer\Todb.pas</Transaction>
+    <Transaction>2007/06/06 16:49:58.500.dfm,C:\Documents and Settings\pgdennis\桌面\SpecTxtViewer\Unit2.dfm=C:\Documents and Settings\pgdennis\桌面\SpecTxtViewer\Todb.dfm</Transaction>
+    <Transaction>2007/06/06 16:57:00.531.pas,C:\Documents and Settings\pgdennis\桌面\SpecTxtViewer\Unit1.pas=C:\Documents and Settings\pgdennis\桌面\SpecTxtViewer\DM.pas</Transaction>
+    <Transaction>2007/06/06 16:57:00.531.dfm,C:\Documents and Settings\pgdennis\桌面\SpecTxtViewer\Unit1.dfm=C:\Documents and Settings\pgdennis\桌面\SpecTxtViewer\DM.dfm</Transaction>
+    <Transaction>2007/06/07 11:15:35.906.pas,C:\Documents and Settings\pgdennis\桌面\SpecTxtViewer\Unit1.pas=C:\Documents and Settings\pgdennis\桌面\SpecTxtViewer\XLSFile.pas</Transaction>
+    <Transaction>2007/07/19 17:01:35.515.pas,D:\Data\tools\SpecTxtViewer\Unit2.pas=D:\Data\tools\SpecTxtViewer\FilterForm.pas</Transaction>
+    <Transaction>2007/07/19 17:01:35.515.dfm,D:\Data\tools\SpecTxtViewer\Unit2.dfm=D:\Data\tools\SpecTxtViewer\FilterForm.dfm</Transaction>
+    <Transaction>2008/03/27 10:17:08.828.pas,D:\Data\tools\SpecTxtViewer\Wintek Version\Unit1.pas=D:\Data\tools\SpecTxtViewer\Wintek Version\Func.pas</Transaction>
+    <Transaction>2008/03/30 19:01:46.562.pas,E:\DCI\勝華\SpecTxtViewer\Wintek Version\Unit2.pas=E:\DCI\勝華\SpecTxtViewer\Wintek Version\FormBomShow.pas</Transaction>
+    <Transaction>2008/03/30 19:01:46.562.dfm,E:\DCI\勝華\SpecTxtViewer\Wintek Version\Unit2.dfm=E:\DCI\勝華\SpecTxtViewer\Wintek Version\FormBomShow.dfm</Transaction>
+    <Transaction>2008/03/31 10:42:27.671.pas,D:\Data\tools\SpecTxtViewerBOM\Wintek Version\Unit2.pas=D:\Data\tools\SpecTxtViewerBOM\Wintek Version\FormQuery.pas</Transaction>
+    <Transaction>2008/03/31 10:42:27.671.dfm,D:\Data\tools\SpecTxtViewerBOM\Wintek Version\Unit2.dfm=D:\Data\tools\SpecTxtViewerBOM\Wintek Version\FormQuery.dfm</Transaction>
+    <Transaction>2008/04/02 11:52:49.546.pas,D:\Data\tools\SpecTxtViewerBOM\Wintek Version\Unit1.pas=D:\Data\tools\SpecTxtViewerBOM\Wintek Version\HintWindow.pas</Transaction>
+    <Transaction>2008/04/02 12:13:45.328.pas,D:\Data\tools\SpecTxtViewerBOM\Wintek Version\Unit2.pas=D:\Data\tools\SpecTxtViewerBOM\Wintek Version\FormHint.pas</Transaction>
+    <Transaction>2008/04/02 12:13:45.328.dfm,D:\Data\tools\SpecTxtViewerBOM\Wintek Version\Unit2.dfm=D:\Data\tools\SpecTxtViewerBOM\Wintek Version\FormHint.dfm</Transaction>
+    <Transaction>2008/04/02 12:14:37.500.pas,D:\Data\tools\SpecTxtViewerBOM\Wintek Version\HintWindow.pas=</Transaction>
+    <Transaction>2008/04/03 14:34:28.015.pas,D:\Data\tools\SpecTxtViewerBOM\Wintek Version\Unit3.pas=D:\Data\tools\SpecTxtViewerBOM\Wintek Version\FormHardPeggingView.pas</Transaction>
+    <Transaction>2008/04/03 14:34:28.015.dfm,D:\Data\tools\SpecTxtViewerBOM\Wintek Version\Unit3.dfm=D:\Data\tools\SpecTxtViewerBOM\Wintek Version\FormHardPeggingView.dfm</Transaction>
+    <Transaction>2008/04/16 11:11:29.875.pas,D:\Data\tools\SpecTxtViewerBOM\Wintek Version\Unit3.pas=D:\Data\tools\SpecTxtViewerBOM\Wintek Version\FormBomShowItemSupply.pas</Transaction>
+    <Transaction>2008/04/16 11:11:29.875.dfm,D:\Data\tools\SpecTxtViewerBOM\Wintek Version\Unit3.dfm=D:\Data\tools\SpecTxtViewerBOM\Wintek Version\FormBomShowItemSupply.dfm</Transaction>
+    <Transaction>2008/05/02 09:17:33.909.pas,D:\Data\DCI\Tools\SpecTxtViewerBOM\Wintek Version\FormQuery.pas=D:\Data\DCI\Tools\SpecTxtViewerBOM\Wintek Version\FormItemTotalSupply.pas</Transaction>
+    <Transaction>2008/05/02 09:17:33.909.dfm,D:\Data\DCI\Tools\SpecTxtViewerBOM\Wintek Version\FormQuery.dfm=D:\Data\DCI\Tools\SpecTxtViewerBOM\Wintek Version\FormItemTotalSupply.dfm</Transaction>
+    <Transaction>2008/06/23 14:51:09.734.pas,D:\Data\DCI\Tools\SpecTxtViewerBOM\Wintek Version\FormHardPeggingView.pas=D:\Data\DCI\Tools\SpecTxtViewerBOM\Wintek Version\FormMOPeggingView.pas</Transaction>
+    <Transaction>2008/06/23 14:51:09.734.dfm,D:\Data\DCI\Tools\SpecTxtViewerBOM\Wintek Version\FormHardPeggingView.dfm=D:\Data\DCI\Tools\SpecTxtViewerBOM\Wintek Version\FormMOPeggingView.dfm</Transaction>
+  </Transactions>
+</BorlandProject>

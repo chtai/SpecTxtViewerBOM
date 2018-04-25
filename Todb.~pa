@@ -1,0 +1,213 @@
+unit Todb;
+
+interface
+
+uses
+    Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+    Dialogs, StdCtrls, Buttons, CheckLst, DB, DBClient, Grids, DBGrids, ExtCtrls;
+
+type
+    TFmtodb = class(TForm)
+        GroupBox1: TGroupBox;
+        cklist1: TCheckListBox;
+        BitBtn1: TBitBtn;
+        BitBtn2: TBitBtn;
+        cds1: TClientDataSet;
+        DBGrid1: TDBGrid;
+        DataSource1: TDataSource;
+        cb1: TCheckBox;
+        lbet: TLabeledEdit;
+        cb_trunctbl: TCheckBox;
+        procedure FormShow(Sender: TObject);
+        procedure FormClose(Sender: TObject; var Action: TCloseAction);
+        procedure BitBtn1Click(Sender: TObject);
+        procedure cb1Click(Sender: TObject);
+    private
+        { Private declarations }
+    public
+        { Public declarations }
+        SL: TstringList;
+        txtfile: string;
+        function ReadTxtToCds(stxtfile: string): string;
+        procedure CdstoDb(tcds: TClientDataSet);
+    end;
+procedure call_fmtodb(lSL: TstringList);
+var
+    Fmtodb: TFmtodb;
+
+implementation
+uses DM, main,Func;
+{$R *.dfm}
+
+procedure call_fmtodb(lSL: TstringList);
+begin
+    try
+        Fmtodb := TFmtodb.Create(application);
+        Fmtodb.SL := lSL;
+        Fmtodb.Showmodal;
+    finally
+        Fmtodb.Free;
+    end;
+
+end;
+
+procedure TFmtodb.BitBtn1Click(Sender: TObject);
+var
+    i: integer;
+begin
+    ggsdb.Close;
+    ggsdb.open;
+    for I := 0 to cklist1.Count - 1 do
+    begin
+        if cklist1.Checked[i] = true then
+        begin
+            txtfile := cklist1.Items[i];
+            ReadTxtToCds(txtfile);
+            CdstoDb(cds1);
+        end;
+    end;
+    abort;
+end;
+
+procedure TFmtodb.cb1Click(Sender: TObject);
+var
+    i: integer;
+begin
+    for I := 0 to cklist1.Count - 1 do
+    begin
+        cklist1.Checked[i] := cb1.Checked;
+    end;
+end;
+
+procedure TFmtodb.CdstoDb(tcds: TClientDataSet);
+var
+    i, iErrnum, iToken: integer;
+    sPrefix: string;
+begin
+    if lbet.Text = '' then
+        sPrefix := ''
+    else
+        sPrefix := uppercase(lbet.Text) + '.';
+
+    if cb_trunctbl.checked then
+    begin
+        gmqy.CommandText := 'delete from ' + sPrefix + txtfile;
+        gmqy.Execute;
+    end;
+
+    gmqy.Close;
+    gmqy.CommandText := 'select * from ' + sPrefix + uppercase(txtfile) + ' where 1=2 ';
+    gmqy.open;
+
+    iToken := 1;
+    gqry.close;
+    gqry.sql.Text := 'select max(token) from ' + sPrefix + txtfile;
+    gqry.Open;
+    if not gqry.Eof then
+        iToken := gqry.Fields.Fields[0].AsInteger + 1;
+
+    tcds.first;
+    while not tcds.eof do
+    begin
+        gmqy.Append;
+        for I := 0 to tcds.FieldCount - 1 do
+        begin
+            gmqy.FieldByName(tcds.Fields[i].FieldName).AsString :=
+                tcds.Fields[i].AsString;
+        end;
+        if is_oracle then
+        begin
+
+            try
+                gmqy.FieldByName('ENTRY_DATE').AsDateTime := date;
+            except
+            end;
+            try
+                gmqy.FieldByName('ENTRY_USER').AsString := '0303';
+            except
+            end;
+            try
+                gmqy.FieldByName('ENTRY_DEPT').AsString := 'TH0';
+            except
+            end;
+            try
+                gmqy.FieldByName('TOKEN').AsInteger := iToken;
+                inc(iToken);
+            except
+            end;
+        end;
+        gmqy.Post;
+        tcds.Next;
+    end;
+    iErrnum := gmqy.ApplyUpdates(-1);
+    showmessage('errors:' + inttostr(iErrnum));
+end;
+
+procedure TFmtodb.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+    if assigned(SL) then
+        SL.Free;
+end;
+
+procedure TFmtodb.FormShow(Sender: TObject);
+var
+    i: integer;
+begin
+    ggsdb := dm.DataModule1.gsDB;
+    gmqy := dm.DataModule1.Mqy;
+    gqry := dm.DataModule1.qry;
+
+    cklist1.Items.Assign(SL);
+    for I := 0 to cklist1.Items.Count - 1 do
+        cklist1.Checked[i] := true;
+end;
+
+function TFmtodb.ReadTxtToCds(stxtfile: string): string;
+var
+    SL: TstringList;
+    i, j: integer;
+    stblname, sfieldname: string;
+begin
+
+    try
+        SL := TstringList.Create;
+        SL.Delimiter := ',';
+        SL.DelimitedText := GetSepc(txtfile);
+        stblname := SL.Strings[1];
+        ifieldcount := SL.Count - 2;
+
+
+        cds1.Close;
+        cds1.FieldDefs.Clear;
+        for I := 2 to SL.Count - 1 do
+        begin
+            sfieldname := SL.Strings[i];
+            if sfieldname <> '' then
+                cds1.FieldDefs.Add(sfieldname, ftstring, 50);
+        end;
+        cds1.CreateDataSet;
+    finally
+        Sl.Free;
+    end;
+
+    if not cds1.Active then
+        exit;
+    try
+        SL := TstringList.Create;
+        SL.LoadFromFile(stxtfile + '.txt');
+        for I := 0 to SL.Count - 1 do
+        begin
+            cds1.Append;
+            for j := 0 to ifieldcount - 1 do
+            begin
+                cds1.Fields[j].AsString := StrExtract(SL.Strings[i], chr(11), j + 1);
+            end;
+            cds1.Post;
+        end;
+    finally
+        SL.Free;
+    end;
+end;
+
+end.
+

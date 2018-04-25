@@ -1,0 +1,225 @@
+unit FormBomShow;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, Buttons, ComCtrls, DB, DBClient, ImgList;
+
+type
+  TfrFormBomShow = class(TForm)
+    GroupBox1: TGroupBox;
+    Label1: TLabel;
+    Edit1: TEdit;
+    btn_show: TBitBtn;
+    TWBom: TTreeView;
+    cdsBom: TClientDataSet;
+    ImageList1: TImageList;
+    btn_Exp: TBitBtn;
+    SaveDialog1: TSaveDialog;
+    cdsSubBom: TClientDataSet;
+    cdsGlobalSubBom: TClientDataSet;
+    Label2: TLabel;
+    Edit2: TEdit;
+    Label3: TLabel;
+    Label4: TLabel;
+    Label5: TLabel;
+    procedure TWBomCustomDrawItem(Sender: TCustomTreeView; Node: TTreeNode;
+      State: TCustomDrawState; var DefaultDraw: Boolean);
+    procedure btn_ExpClick(Sender: TObject);
+    procedure btn_showClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frFormBomShow: TfrFormBomShow;
+procedure CallTfrFormBomShow(sItemId: string);
+
+implementation
+uses dm, main, func;
+{$R *.dfm}
+
+procedure CallTfrFormBomShow(sItemId: string);
+begin
+  try
+    frFormBomShow := TfrFormBomShow.Create(application);
+    frFormBomShow.Edit1.Text := sItemId;
+    frFormBomShow.ShowModal;
+  finally
+    frFormBomShow.free;
+  end;
+end;
+
+procedure TfrFormBomShow.btn_showClick(Sender: TObject);
+var
+  swhere, sOutputItemId, sItemId, sAltItemId, sAltType: string;
+  root, node, node1: TtreeNode;
+  StrList: TStringList;
+  i, bomi, subbomi, globalsubbomi: integer;
+
+  procedure AddTreeNode(tvNode: TtreeNode; LvL: integer);
+  var
+    tmpStrList, tmpStrList1: TStringList;
+    j, k: integer;
+  begin
+    try
+      tmpStrList := TStringList.Create;
+      tmpStrList1 := TStringList.Create;
+
+      sOutputItemId := StrExtract(tvNode.Text, ':', 1);
+      swhere := ' OutputItemId = ' + #39 + sOutputItemId + #39 +
+        ' and ItemAltId= ' + #39 + edit2.text + #39;
+
+      //get all bomrec itemId
+      cdsBom.Filtered := false;
+      cdsBom.Filter := swhere;
+      cdsBom.Filtered := true;
+      tmpStrList.Clear;
+      while not cdsBom.Eof do begin
+        sItemId := cdsBom.FieldByName('ItemId').AsString;
+        if tmpStrList.indexof(sItemId) < 0 then
+          tmpStrList.Add(sItemId);
+        cdsBom.Next;
+      end;
+
+      for j := 0 to tmpStrList.count - 1 do begin
+        //BomRec
+        sItemId := tmpStrList.Strings[j];
+        node := TWBom.Items.AddChild(tvNode, sItemId + ':' + IntToStr(LvL));
+        node.ImageIndex := 1;
+        inc(bomi);
+
+        //SubstituteBOM------------------------------------------------------
+        swhere := ' OutputItemId = ' + #39 + sOutputItemId + #39 +
+          ' and ItemAltId= ' + #39 + edit2.text + #39 +
+          ' and ItemId= ' + #39 + sItemId + #39;
+        cdsSubBom.Filtered := false;
+        cdsSubBom.Filter := swhere;
+        cdsSubBom.Filtered := true;
+        tmpStrList1.Clear;
+        while not cdsSubBom.Eof do begin
+          sAltItemId := cdsSubBom.FieldByName('AltItemId').AsString + ':' +
+            cdsSubBom.FieldByName('AltType').AsString;
+          if tmpStrList1.indexof(sAltItemId) < 0 then
+            tmpStrList1.Add(sAltItemId);
+          cdsSubBom.Next;
+        end;
+        for k := 0 to tmpStrList1.count - 1 do begin
+          sAltItemId := StrExtract(tmpStrList1.Strings[k], ':', 1);
+          sAltType := StrExtract(tmpStrList1.Strings[k], ':', 2);
+          node1 := TWBom.Items.AddChild(tvNode, sAltItemId + ':'
+            + '(ItemId=' + sItemId + ')' + ':'
+            + iif(sAltType = 'S', '(代用料)', '(耗盡料)') + ':'
+            + IntToStr(LvL));
+          node1.ImageIndex := 2;
+          inc(subbomi);
+        end;
+        //SubstituteItem------------------------------------------------------
+        if tmpStrList1.Count = 0 then begin
+          swhere := 'ItemId= ' + #39 + sItemId + #39;
+          cdsGlobalSubBom.Filtered := false;
+          cdsGlobalSubBom.Filter := swhere;
+          cdsGlobalSubBom.Filtered := true;
+          while not cdsGlobalSubBom.Eof do begin
+            sAltItemId := cdsGlobalSubBom.FieldByName('AltItemId').AsString + ':' +
+              cdsGlobalSubBom.FieldByName('AltType').AsString;
+            if tmpStrList1.indexof(sAltItemId) < 0 then
+              tmpStrList1.Add(sAltItemId);
+            cdsGlobalSubBom.Next;
+          end;
+          for k := 0 to tmpStrList1.count - 1 do begin
+            sAltItemId := StrExtract(tmpStrList1.Strings[k], ':', 1);
+            sAltType := StrExtract(tmpStrList1.Strings[k], ':', 2);
+            node1 := TWBom.Items.AddChild(tvNode, sAltItemId + ':'
+              + '(ItemId=' + sItemId + ')' + ':'
+              + iif(sAltType = 'S', '(全域代用料)', '(全域耗盡料)') + ':'
+              + IntToStr(LvL));
+            node1.ImageIndex := 2;
+            inc(globalsubbomi);
+          end;
+        end;
+
+      end;
+
+      //Create child
+      for j := 0 to tvNode.count - 1 do
+        AddTreeNode(tvNode.Item[j], LvL + 1);
+
+    finally
+      tmpStrList.Free;
+      tmpStrList1.Free;
+    end;
+  end;
+
+begin
+
+  if edit1.Text = '' then begin
+    ShowMessage('ItemId不可為空!');
+    exit;
+  end;
+
+  try
+    cdsBom.DisableControls;
+    TWBom.Items.Clear;
+    bomi := 0; subbomi := 0; globalsubbomi := 0;
+
+    StrList := TStringList.Create;
+    swhere := ' OutputItemId = ' + #39 + edit1.Text + #39 +
+      ' and ItemAltId= ' + #39 + edit2.text + #39;
+      
+    ReadTxt('BOM.txt', cdsBom);
+    ReadTxt('SubstituteBOM.txt', cdsSubBom);
+    ReadTxt('SubstituteItem.txt', cdsGlobalSubBom);
+
+    cdsBom.Filtered := false;
+    cdsBom.Filter := swhere;
+    cdsBom.Filtered := true;
+    StrList.Clear;
+    while not cdsBom.Eof do begin
+      sItemId := cdsBom.FieldByName('ItemId').AsString;
+      StrList.Add(sItemId);
+      cdsBom.Next;
+    end;
+
+    //root
+    Root := TWBom.Items.AddChild(nil, cdsBom.FieldByName('OutputItemId').AsString);
+    Root.ImageIndex := 3;
+    for i := 0 to StrList.count - 1 do begin
+      node := TWBom.Items.AddChild(Root, StrList.Strings[i] + ':1');
+      node.ImageIndex := 1;
+      AddTreeNode(node, 2);
+    end;
+    label3.caption := Format('BOM中共有%s筆主料', [IntToStr(bomi)]);
+    label4.caption := Format('BOM中共有%s筆代用料/耗盡', [IntToStr(subbomi)]);
+    label5.caption := Format('BOM中共有%s筆全域代用料/耗盡', [IntToStr(globalsubbomi)]);
+    TwBom.FullExpand;
+  finally
+    StrList.Free;
+    cdsBom.EnableControls;
+  end;
+end;
+
+procedure TfrFormBomShow.btn_ExpClick(Sender: TObject);
+begin
+  if SaveDialog1.Execute() then
+    TWBom.SaveToFile(SaveDialog1.FileName);
+end;
+
+procedure TfrFormBomShow.TWBomCustomDrawItem(Sender: TCustomTreeView;
+  Node: TTreeNode; State: TCustomDrawState; var DefaultDraw: Boolean);
+begin
+  if Node.HasChildren then
+    TWBom.Canvas.Font.Color := clGreen;
+  if (StrExtract(Node.text, ':', 3) = '(代用料)') or (StrExtract(Node.text, ':', 3) = '(耗盡料)') then
+    TWBom.Canvas.Font.Color := clRed;
+  if (StrExtract(Node.text, ':', 3) = '(全域代用料)') or (StrExtract(Node.text, ':', 3) = '(全域耗盡料)') then
+    TWBom.Canvas.Font.Color := clBlue;
+  DefaultDraw := true;
+
+end;
+
+end.
+

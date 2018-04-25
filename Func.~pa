@@ -1,0 +1,152 @@
+unit Func;
+
+interface
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls,
+  StdCtrls, FileCtrl, ExtCtrls,
+  ComCtrls, math, DB, DBClient;
+
+
+function StrExtract(sStr: string; const sSep: string = ';'; const nOccur: integer = 1): string;
+function iif(lFlag: boolean; var1, var2: variant): variant;
+
+function ReadTxtToCds(stxtfile: string; cds: TclientDataSet): integer;
+procedure ReadTxt(txtfile: string; scds: TClientDataSet);
+function GetSepc(stable: string): string;
+var
+  specfile: string;
+  ifieldcount: integer;
+
+implementation
+
+function StrExtract(sStr: string; const sSep: string = ';'; const nOccur: integer = 1): string;
+var
+  n, npos: integer;
+begin
+  n := abs(nOccur);
+  Result := sStr;
+  while n > 0 do
+  begin
+        //  while ((n > 0) and (Result<>'')) do begin
+    npos := pos(UpperCase(sSep), UpperCase(sStr));
+    if npos > 0 then
+    begin
+      Result := copy(sStr, 1, npos - 1);
+      sStr := copy(sStr, npos + length(ssep), Length(sStr) - npos - length(ssep) + 1);
+    end
+    else
+    begin
+      Result := sStr;
+      sStr := '';
+    end;
+    n := n - 1;
+  end;
+  if nOccur < 0 then //若為負值, 取剩餘部分
+    Result := sStr;
+end;
+
+//**************************************************************
+//     函數名稱: iif
+//     目的:  依條件運算lflag之值, 決定傳回值
+//  例: i := iif( a > 0 , i, -i);
+//      s := iif(Button1.Enabled, 'True', 'False');
+//**************************************************************
+
+function iif(lFlag: boolean; var1, var2: variant): variant;
+begin
+  if lFlag then Result := var1
+  else Result := var2;
+end;
+
+function GetSepc(stable: string): string;
+var
+  SL: TstringList;
+  i: integer;
+begin
+  try
+    SL := TstringList.Create;
+    SL.LoadFromFile(specfile);
+    for I := 0 to SL.Count - 1 do
+    begin
+      if pos(uppercase(stable), uppercase(SL.Strings[i])) > 0 then
+      begin
+        result := SL.Strings[i];
+        exit;
+      end;
+    end;
+  finally
+    SL.Free;
+  end;
+end;
+
+procedure ReadTxt(txtfile: string; scds: TClientDataSet);
+var
+  stblname, sfieldname: string;
+  SL: TstringList;
+  i, k: integer;
+
+begin
+
+  try
+    SL := TstringList.Create;
+    SL.Delimiter := ',';
+    SL.DelimitedText := GetSepc(txtfile);
+    stblname := SL.Strings[1];
+    ifieldcount := SL.Count - 2;
+    scds.Filter := '';
+    scds.Filtered := false;
+    scds.Close;
+    scds.FieldDefs.Clear;
+    for I := 2 to SL.Count - 1 do
+    begin
+      sfieldname := SL.Strings[i];
+      if sfieldname <> '' then
+        scds.FieldDefs.Add(sfieldname, ftstring, 80);
+    end;
+
+    scds.CreateDataSet;
+    ReadTxtToCds(txtfile, scds);
+  finally
+    Sl.Free;
+  end;
+end;
+
+function ReadTxtToCds(stxtfile: string; cds: TclientDataSet): integer;
+var
+  SL: TstringList;
+  i, j: integer;
+begin
+  if not cds.Active then
+    exit;
+
+  //flashform.Visible := true;
+  cds.DisableControls;
+  try
+    SL := TstringList.Create;
+    SL.LoadFromFile(stxtfile);
+    for I := 0 to SL.Count - 1 do
+    begin
+      cds.Append;
+      for j := 0 to ifieldcount - 1 do
+      begin
+        cds.Fields[j].AsString := StrExtract(SL.Strings[i], chr(11), j + 1);
+      end;
+      cds.Post;
+      //flashform.Caption := '處理筆數：' + intToStr(I);
+      //Application.ProcessMessages;
+    end;
+    //for I := 0 to dbgrid1.Columns.Count - 1 do
+    //begin
+    //  dbgrid1.Columns[i].Width := 50;
+    //end;
+    Result := cds.RecordCount;
+  finally
+    SL.Free;
+    //flashform.Visible := FALSE;
+    cds.First;
+    cds.EnableControls;
+  end;
+end;
+
+end.
+
