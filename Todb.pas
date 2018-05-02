@@ -242,7 +242,7 @@ var
   SL,insertSQLSL: TstringList;
   i, j: integer;
   stblname, sfieldname,txt_line,sfieldlist,svaluelist,sinsertsql,sPrefix: string;
-  tmp_hash:TStringHash;
+  tmp_column_is_null_hash,tmp_column_datatype_hash:TStringHash;
   tmp_value:string;
 
 begin
@@ -271,14 +271,16 @@ begin
     ifieldcount := SL.Count - 2;
 
     //取得欄位meta
-    tmp_hash := TStringHash.Create;
+    tmp_column_is_null_hash := TStringHash.Create;
+    tmp_column_datatype_hash := TStringHash.Create;
     gmqy.Close;
     gmqy.CommandText:=' select COLUMN_NAME,IS_NULLABLE,DATA_TYPE from INFORMATION_SCHEMA.COLUMNS '+
                       ' where TABLE_NAME='+AA(stblname);
     gmqy.Open;
     while not gmqy.Eof do
     begin
-        tmp_hash[gmqy.Fields[0].AsString]:=  gmqy.Fields[1].AsString;
+        tmp_column_is_null_hash[gmqy.Fields[0].AsString]:=  gmqy.Fields[1].AsString;
+        tmp_column_datatype_hash[gmqy.Fields[0].AsString]:=  gmqy.Fields[2].AsString;
         gmqy.Next;
     end;
     gmqy.Close;
@@ -290,7 +292,9 @@ begin
       sfieldname := SL.Strings[i];
       if sfieldname <> '' then
       begin
-        tmp_hash[inttostr(i-2)] := tmp_hash[sfieldname];
+        //暫存欄位與欄位順序的hash table
+        tmp_column_is_null_hash[inttostr(i-2)] := tmp_column_is_null_hash[sfieldname];
+        tmp_column_datatype_hash[inttostr(i-2)] := tmp_column_datatype_hash[sfieldname];
         sfieldlist := sfieldlist + sfieldname+',';
       end;
     end;
@@ -305,7 +309,7 @@ begin
   end;
 
   //組insert value字串
-  try
+  //try
     SL := TstringList.Create;
 
     if file_encode = 'ANSI' then
@@ -330,26 +334,35 @@ begin
         tmp_value := StringReplace(tmp_value, chr(39) , chr(39)+chr(39),[rfReplaceALl]) ;
 
         if tmp_value =''  then
-          if tmp_hash[inttostr(j)]='YES' then
+          if tmp_column_is_null_hash[inttostr(j)]='YES' then
               svaluelist := svaluelist +'NULL'+','
           else
               svaluelist := svaluelist +AA(' ')+','
         else
+        begin
+          //2018.5.2 2316.336633663366336633663366336633663366這種超長的字串要先轉成float後,再轉成指定位數的字串
+          if (tmp_column_datatype_hash[inttostr(j)]='numeric') or (tmp_column_datatype_hash[inttostr(j)]='decimal') then
+            svaluelist := svaluelist + FloattoStrF(strtofloat(tmp_value),ffgeneral,20,8)+','
+          else
             svaluelist := svaluelist + AA(tmp_value)+',';
+
+        end;
       end;
       svaluelist := copy(svaluelist,1,length(svaluelist)-1)+');';
       sinsertsql:= sfieldlist+ svaluelist;
       insertSQLSL.Append(sinsertsql);
 
-      statusbar1.Panels[0].Text := '目前進度:' + sPrefix + stblname + ' Insert Starting..('+inttostr(I)+')';
-      Application.ProcessMessages;
 
       if (I mod 3000)=0 then
       begin
+
         gmqy.Close;
         gmqy.CommandText := insertSQLSL.Text;
         gmqy.Execute;
         insertSQLSL.Clear;
+
+        statusbar1.Panels[0].Text := '目前進度:' + sPrefix + stblname + ' Insert Starting..('+inttostr(I)+')';
+        Application.ProcessMessages;
       end;
 
     end;
@@ -360,12 +373,16 @@ begin
         gmqy.CommandText := insertSQLSL.Text;
         gmqy.Execute;
         insertSQLSL.Clear;
+
+        statusbar1.Panels[0].Text := '目前進度:' + sPrefix + stblname + ' Insert Starting..('+inttostr(I)+')';
+        Application.ProcessMessages;
     end;
 
+
     insertSQLSL.Free;
-  finally
-    SL.Free;
-  end;
+  //finally
+  //  SL.Free;
+  //end;
 
 
 
@@ -382,9 +399,10 @@ end;
 procedure TFmtodb.btn_okClick(Sender: TObject);
 var
   i: integer;
+  tblname:string;
 begin
 
-  if cb_trunctbl.checked then TruncateTables;
+  if cb_trunctbl.checked then self.TruncateTables;
 
   ggsdb.Close;
   ggsdb.open;
@@ -418,10 +436,27 @@ begin
     begin
       if cklist1.Checked[i] = true then
       begin
-        txtfile := cklist1.Items[i] + '.txt';
-        //ReadTxtToCds(txtfile);
-        //CdstoDb(cds1);
-        self.ReadTxtToDB(txtfile);
+
+        tblname:=cklist1.Items[i];
+
+        gmqy.Close;
+        gmqy.CommandText:= 'if object_id('+AA(tblname)+') is not null select 1 as cc else  select 0 as cc'  ;
+        gmqy.Open;
+
+        if gmqy.FieldByName('cc').AsInteger = 1  then
+        begin
+
+          statusbar1.Panels[0].Text := '目前進度:' + tblname+ ' 匯入開始';
+          Application.ProcessMessages;
+
+          txtfile := cklist1.Items[i] + '.txt';
+          self.ReadTxtToDB(txtfile);
+
+          statusbar1.Panels[0].Text := '目前進度:' + tblname+ ' 匯入結束';
+          Application.ProcessMessages;
+        end;
+        gmqy.Close;
+
 
         if cklist1.Items[i]='AltGroup' then
         begin
@@ -518,13 +553,25 @@ begin
           sPrefix := ''
         else
           sPrefix := (lbet.Text) + '.';
+
         try
+
           statusbar1.Panels[0].Text := '目前進度:' + sPrefix + (tblnm) + ' Delete Starting..';
           Application.ProcessMessages;
           if tblnm<>'AltGroup' then
           begin
-            gmqy.CommandText := 'delete from  ' + sPrefix + (tblnm);
-            gmqy.Execute;
+
+            gmqy.Close;
+            gmqy.CommandText:= 'if object_id('+AA(sPrefix + (tblnm))+') is not null select 1 as cc else  select 0 as cc'  ;
+            gmqy.Open;
+
+            if gmqy.FieldByName('cc').AsInteger=1 then
+            begin
+              gmqy.Close;
+              gmqy.CommandText := 'delete from  ' + sPrefix + (tblnm);
+              gmqy.Execute;
+            end;
+
           end
           else
           begin
@@ -536,8 +583,10 @@ begin
         except on E: Exception do
             errlog.Add(sPrefix + (tblnm) + ': ' + E.Message);
         end;
-      end;
-    end;
+
+      end; //if cklist1.Checked[i]
+
+    end; // for I
 
   finally
     errlog.SaveToFile(ExtractFilePath(Application.ExeName) + 'TruncatetableErr.log');

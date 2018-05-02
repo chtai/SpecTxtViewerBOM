@@ -2,7 +2,7 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Anchors = [akLeft, akTop, akRight, akBottom]
-  Caption = 'SpectxtViewer (2018.2.1)'
+  Caption = 'SpectxtViewer (2018.5.2)'
   ClientHeight = 568
   ClientWidth = 918
   Color = clBtnFace
@@ -124,10 +124,6 @@ object Form1: TForm1
           Margins.Right = 2
           Margins.Bottom = 2
           Caption = 'Grid view'
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object DBGrid1: TDBGrid
             Left = 98
             Top = 12
@@ -206,10 +202,6 @@ object Form1: TForm1
           Caption = 'Text view'
           ImageIndex = 2
           TabVisible = False
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object Memo1: TMemo
             Left = 0
             Top = 0
@@ -597,10 +589,6 @@ object Form1: TForm1
           Margins.Bottom = 2
           Caption = 'DB'
           ImageIndex = 1
-          ExplicitLeft = 0
-          ExplicitTop = 0
-          ExplicitWidth = 0
-          ExplicitHeight = 0
           object Label4: TLabel
             Left = 544
             Top = 8
