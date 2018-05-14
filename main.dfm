@@ -2,7 +2,7 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Anchors = [akLeft, akTop, akRight, akBottom]
-  Caption = 'SpectxtViewer (2018.5.2)'
+  Caption = 'SpectxtViewer (2018.5.11)'
   ClientHeight = 568
   ClientWidth = 918
   Color = clBtnFace
@@ -565,7 +565,7 @@ object Form1: TForm1
               Top = 22
               Width = 222
               Height = 17
-              Caption = 'UTF8('#22914#26524#26159#28961'BOM'#39318','#35531#36681#25563#27284#26696#26684#24335')'
+              Caption = 'UTF8('#31243#24335#26371#20808#23559#25991#23383#27284#36681#25104'UTF8)'
               Checked = True
               TabOrder = 9
               TabStop = True

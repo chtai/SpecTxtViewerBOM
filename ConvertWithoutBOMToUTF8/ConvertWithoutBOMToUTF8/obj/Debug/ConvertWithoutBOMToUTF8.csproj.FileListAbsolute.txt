@@ -1,0 +1,9 @@
+C:\4.專用Tools\SpecTxtViewerBOM\ConvertWithoutBOMToUTF8\ConvertWithoutBOMToUTF8\bin\Debug\ConvertWithoutBOMToUTF8.exe.config
+C:\4.專用Tools\SpecTxtViewerBOM\ConvertWithoutBOMToUTF8\ConvertWithoutBOMToUTF8\bin\Debug\ConvertWithoutBOMToUTF8.exe
+C:\4.專用Tools\SpecTxtViewerBOM\ConvertWithoutBOMToUTF8\ConvertWithoutBOMToUTF8\bin\Debug\ConvertWithoutBOMToUTF8.pdb
+C:\4.專用Tools\SpecTxtViewerBOM\ConvertWithoutBOMToUTF8\ConvertWithoutBOMToUTF8\obj\Debug\ConvertWithoutBOMToUTF8.csprojResolveAssemblyReference.cache
+C:\4.專用Tools\SpecTxtViewerBOM\ConvertWithoutBOMToUTF8\ConvertWithoutBOMToUTF8\obj\Debug\ConvertWithoutBOMToUTF8.Form1.resources
+C:\4.專用Tools\SpecTxtViewerBOM\ConvertWithoutBOMToUTF8\ConvertWithoutBOMToUTF8\obj\Debug\ConvertWithoutBOMToUTF8.Properties.Resources.resources
+C:\4.專用Tools\SpecTxtViewerBOM\ConvertWithoutBOMToUTF8\ConvertWithoutBOMToUTF8\obj\Debug\ConvertWithoutBOMToUTF8.csproj.GenerateResource.Cache
+C:\4.專用Tools\SpecTxtViewerBOM\ConvertWithoutBOMToUTF8\ConvertWithoutBOMToUTF8\obj\Debug\ConvertWithoutBOMToUTF8.exe
+C:\4.專用Tools\SpecTxtViewerBOM\ConvertWithoutBOMToUTF8\ConvertWithoutBOMToUTF8\obj\Debug\ConvertWithoutBOMToUTF8.pdb

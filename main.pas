@@ -145,7 +145,7 @@ implementation
 
 uses DM, todb, XLSFile, FilterForm, inifiles, Func,
   FormBomShow, FormQuery, FormHardPeggingView, FormItemTotalSupply,
-  FormMOPeggingView,FormSetRowsCount;
+  FormMOPeggingView,FormSetRowsCount,shellapi;
 
 
 {$R *.dfm}
@@ -183,8 +183,11 @@ end;
 
 procedure TForm1.btn_dirClick(Sender: TObject);
 var
-  txtfile: string;
+  txtfile,dir_path,exe_path: string;
   i, j: Integer;
+  si:Tstartupinfo;
+  pi:TprocessInformation;
+  handle:THandle;
 begin
   cbx1.Clear;
   specfile := DirList.Directory + '\import\spec\Specification.txt';
@@ -271,6 +274,22 @@ begin
   StatusBar1.Panels[0].Text := '';
 
   btn_saveOneSqlFile.Enabled:=true;
+
+  //call ConvertWithoutBOMToUTF8將無BOM的文字檔先轉成UTF8
+  if ra_utf8.Checked then
+  begin
+    dir_path:= Dirlist2.Directory  ;
+    dir_path:='  "'+StringReplace(dir_path, '\' , '\\',[rfReplaceALl])+'"' ;
+    exe_path:= ExtractFileDir(Application.ExeName)+'\ConvertWithoutBOMToUTF8.exe';
+
+    statusbar1.Panels[0].Text := '文字檔轉成UTF8..';
+    Application.ProcessMessages;
+
+    RunProcess(  exe_path + dir_path ,sw_show,true,nil);
+
+    statusbar1.Panels[0].Text := '文字檔轉換UTF8完成';
+    Application.ProcessMessages;
+  end;
 
 end;
 
@@ -1031,7 +1050,7 @@ var
   Fcds: TClientDataSet;
   FDbGrid: TDBGrid;
   Fds: TDataSource;
-  sfieldstring, svaluestring, sonefile: string;
+  sfieldstring, svaluestring, sonefile,tmp_value: string;
 begin
 
   // 輸出到同一個檔案
@@ -1097,18 +1116,32 @@ begin
         SL_OutInsertSql.Add('Truncate table ' + stblname + ';');
 
         SL_values := TstringList.Create;
-        SL_values.LoadFromFile(txtfile);
+
+        //2018.3.16
+        if file_encode = 'ANSI' then
+        begin
+          SL_values.LoadFromFile(txtfile, TEncoding.ANSI);
+        end;
+        if file_encode = 'UTF8' then
+        begin
+          SL_values.LoadFromFile(txtfile, TEncoding.UTF8 );
+        end;
+
         for i := 0 to SL_values.Count - 1 do
         begin
           svaluestring := '';
           for j := 0 to ifieldcount - 1 do
           begin
+
+           if StrExtract(SL_values.Strings[i], chr(11), j + 1)='' then
+             tmp_value:='null'
+           else
+             tmp_value:=AA(StrExtract(SL_values.Strings[i], chr(11), j + 1));
+
             if svaluestring = '' then
-              svaluestring := AA(StrExtract(SL_values.Strings[i], chr(11),
-                  j + 1))
+              svaluestring := tmp_value
             else
-              svaluestring := svaluestring + ',' + AA
-                (StrExtract(SL_values.Strings[i], chr(11), j + 1));
+              svaluestring := svaluestring + ',' +tmp_value;
           end; // tmpfieldcount
 
           SL_OutInsertSql.Add('insert into ' + stblname + '(' + sfieldstring +
@@ -1131,7 +1164,17 @@ begin
 
   end; // for
   if ch_onefile.Checked then
-    SL_OutInsertSql.SaveToFile( sonefile);
+  begin
+        if file_encode = 'ANSI' then
+        begin
+          SL_OutInsertSql.SaveToFile(sonefile, TEncoding.ANSI);
+        end;
+        if file_encode = 'UTF8' then
+        begin
+          SL_OutInsertSql.SaveToFile(sonefile, TEncoding.UTF8 );
+        end;
+  end;
+    //SL_OutInsertSql.SaveToFile( sonefile);
   showmessage('ok');
 
 end;
